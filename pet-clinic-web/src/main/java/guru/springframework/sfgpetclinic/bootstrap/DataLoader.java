@@ -17,9 +17,9 @@ public class DataLoader implements CommandLineRunner {
     private final OwnerService ownerService;
     private final VetService vetService;
 
-    public DataLoader() {
-        this.ownerService = new OwnerServiceMap(); //Questo va mdoficato, dobbiamo fare una DI
-        this.vetService=new VetServiceMap();// lasciare a Spring il controllo, così da poter cambiare
+    public DataLoader(OwnerService ownerService, VetService vetService) {
+        this.ownerService =ownerService;//fare una DI
+        this.vetService=vetService;// lasciare a Spring il controllo, così da poter cambiare
         //così da passare da un mapService ad un DBService ecc...
     }
 
