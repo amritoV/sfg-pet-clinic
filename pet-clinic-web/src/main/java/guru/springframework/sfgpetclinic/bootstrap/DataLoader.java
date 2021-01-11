@@ -1,12 +1,10 @@
 package guru.springframework.sfgpetclinic.bootstrap;
 
-import guru.springframework.sfgpetclinic.model.Owner;
-import guru.springframework.sfgpetclinic.model.Pet;
-import guru.springframework.sfgpetclinic.model.PetType;
-import guru.springframework.sfgpetclinic.model.Vet;
+import guru.springframework.sfgpetclinic.model.*;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import guru.springframework.sfgpetclinic.services.PetTypeService;
 import guru.springframework.sfgpetclinic.services.VetService;
+import guru.springframework.sfgpetclinic.services.VetSpecialtyService;
 import guru.springframework.sfgpetclinic.services.map.OwnerServiceMap;
 import guru.springframework.sfgpetclinic.services.map.VetServiceMap;
 import org.springframework.boot.CommandLineRunner;
@@ -21,17 +19,35 @@ public class DataLoader implements CommandLineRunner {
     private final OwnerService ownerService;
     private final VetService vetService;
     private final PetTypeService petTypeService;
+    private final VetSpecialtyService vetSpecialtyService;
 
-    public DataLoader(OwnerService ownerService, VetService vetService,PetTypeService petTypeService) {
+    public DataLoader(OwnerService ownerService, VetService vetService,PetTypeService petTypeService, VetSpecialtyService vetSpecialtyService) {
         this.ownerService =ownerService;//fare una DI
         this.vetService=vetService;// lasciare a Spring il controllo, così da poter cambiare
         //così da passare da un mapService ad un DBService ecc...
         this.petTypeService=petTypeService;
+        this.vetSpecialtyService=vetSpecialtyService;
     }
 
 
     @Override
     public void run(String... args) throws Exception {
+
+        //questo controllo ci serve per fare lo switch tra il load data di map
+        //e tra il load data usando JPA con DB
+        int count= petTypeService.findAll().size();
+        if(count==0)loadData();
+    }
+
+
+    private void loadData() {
+        VetSpecialty chirurgo=new VetSpecialty();
+        chirurgo.setSpecialty("Chirurgo");
+        VetSpecialty savedChirurgo=vetSpecialtyService.save(chirurgo);
+
+        VetSpecialty oculista=new VetSpecialty();
+        oculista.setSpecialty("oculista");
+        VetSpecialty savedOculista=vetSpecialtyService.save(oculista);
 
         PetType dog=new PetType();
         dog.setName("DOG");
@@ -59,7 +75,7 @@ public class DataLoader implements CommandLineRunner {
         ownerService.save(owner1);
 
         Owner owner2=new Owner();
-       // owner2.setId(2L); //dovrà essere generato in automatico
+        // owner2.setId(2L); //dovrà essere generato in automatico
         owner2.setFirstName("carlo");
         owner2.setLastName("verrelli");
         owner2.setAdress("999 c. botte");
@@ -75,24 +91,25 @@ public class DataLoader implements CommandLineRunner {
         ownerService.save(owner2);
 
         Vet vet1=new Vet();
-      //  vet1.setId(1L); //L'id dovrà essere generato in automatico
+        //  vet1.setId(1L); //L'id dovrà essere generato in automatico
         vet1.setFirstName("gianluca");
         vet1.setLastName("cestra");
-
+        vet1.getSpecialties().add(savedChirurgo);
         vetService.save(vet1);
 
         Vet vet2=new Vet();
-       // vet2.setId(2L); //L'id dovrà essere generato in automatico
+        // vet2.setId(2L); //L'id dovrà essere generato in automatico
         vet2.setFirstName("pippo");
         vet2.setLastName("dinsey");
-
+        vet2.addSpecialty(savedOculista);
         vetService.save(vet2);
-
 
 
         System.out.println("owner loaded");
         System.out.println("Vet loaded");
         System.out.println("loaded pet Types");
         System.out.println("Loaded pets into owner");
+        System.out.println("loaded Vet Specialties");
+        System.out.println("added vetSpecialies into vets");
     }
 }
