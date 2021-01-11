@@ -34,4 +34,9 @@ public class PetTypeServiceMap extends AbstractMapService<PetType,Long> implemen
         super.delete(petType);
     }
 
+    @Override
+    public String toString(){
+        return super.map.toString();
+    }
+
 }
